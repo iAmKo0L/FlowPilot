@@ -105,12 +105,4 @@ Tài liệu đầy đủ nằm trong thư mục `docs/`:
 - [Tài liệu API](docs/API_DOCUMENT.md)
 - [Kịch bản demo](docs/DEMO_SCRIPT.md)
 
-## Ghi Chú Source
-
-Không commit các thư mục sinh ra khi build/chạy local:
-
-- `backend/target/`
-- `frontend/dist/`
-- `frontend/node_modules/`
-
-Các mục này đã được khai báo trong `.gitignore`.
+Dev by: Đỗ Đức Cảnh
