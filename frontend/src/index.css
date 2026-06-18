@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #f5f7ff;
+  --color-brand-100: #ebf0ff;
+  --color-brand-200: #d6e0ff;
+  --color-brand-300: #b3c7ff;
+  --color-brand-400: #85a3ff;
+  --color-brand-500: #5275ff;
+  --color-brand-600: #2b44ff;
+  --color-brand-700: #1a2bff;
+  --color-brand-800: #0010e6;
+  --color-brand-900: #000cb8;
+}
+
+@utility animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
