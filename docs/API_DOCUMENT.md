@@ -141,6 +141,22 @@ Khi approve, biến `approved = true` được gửi về BPMN engine. Khi rejec
 
 Internal attendee phản hồi qua thông báo sau khi đăng nhập. Guest attendee phản hồi qua link token công khai.
 
+Email guest dùng các link frontend dạng:
+
+```text
+/public/attendee-response/{token}?status=ACCEPTED
+/public/attendee-response/{token}?status=TENTATIVE
+/public/attendee-response/{token}?status=DECLINED
+```
+
+Frontend sẽ tự gọi `POST /api/public/attendee-response/{token}` với body:
+
+```json
+{
+  "responseStatus": "ACCEPTED"
+}
+```
+
 ## 7. Monitor
 
 | Method | Endpoint | Quyền | Mô tả |

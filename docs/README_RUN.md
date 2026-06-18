@@ -90,8 +90,36 @@ Các biến này có thể cấu hình trong `docker-compose.yml` hoặc môi tr
 - `APP_CRYPTO_SECRET`: khóa AES 16 bytes cho dữ liệu nhạy cảm.
 - `MEETING_HOLD_DURATION_MINUTES`: thời gian tạm giữ phòng, mặc định 15 phút.
 - `MEETING_HOLD_EXPIRATION_SCAN_MS`: chu kỳ quét yêu cầu hết hạn giữ phòng, mặc định 60000 ms.
+- `APP_FRONTEND_URL`: URL public của frontend dùng trong email mời họp, mặc định `http://localhost:3000`.
+- `APP_MAIL_ENABLED`: bật gửi email thật, mặc định `false`.
+- `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`: cấu hình SMTP.
+- `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS_ENABLE`: cấu hình xác thực/TLS SMTP.
 
-## 7. Ghi Chú Dọn Dẹp
+## 7. Gửi Email Thật Cho Guest
+
+Mặc định hệ thống chỉ lưu notification trong database. Để gửi email thật cho khách mời bên ngoài, cần bật SMTP:
+
+```yaml
+APP_MAIL_ENABLED=true
+APP_FRONTEND_URL=https://your-public-flowpilot-domain.com
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-sender@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_FROM=your-sender@gmail.com
+```
+
+Với Gmail, không dùng mật khẩu đăng nhập chính. Cần bật xác thực 2 bước và tạo **App Password** cho ứng dụng gửi mail. Với môi trường công ty, nên dùng SMTP doanh nghiệp như Google Workspace, Microsoft 365, SendGrid, Mailgun, Amazon SES hoặc SMTP relay nội bộ.
+
+Email gửi cho guest có thông tin cuộc họp và 3 link:
+
+- Đồng ý: `/public/attendee-response/{token}?status=ACCEPTED`
+- Có thể: `/public/attendee-response/{token}?status=TENTATIVE`
+- Từ chối: `/public/attendee-response/{token}?status=DECLINED`
+
+Khi guest bấm link, frontend tự gọi API public để ghi nhận phản hồi.
+
+## 8. Ghi Chú Dọn Dẹp
 
 Các thư mục sinh ra khi build/chạy local không cần commit:
 

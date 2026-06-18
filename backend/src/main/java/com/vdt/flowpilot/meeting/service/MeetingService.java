@@ -20,6 +20,7 @@ import com.vdt.flowpilot.meeting.repository.MeetingAttendeeRepository;
 import com.vdt.flowpilot.meeting.repository.MeetingRequestRepository;
 import com.vdt.flowpilot.notification.entity.Notification;
 import com.vdt.flowpilot.notification.repository.NotificationRepository;
+import com.vdt.flowpilot.notification.service.EmailService;
 import com.vdt.flowpilot.process.dto.ProcessHistoryDto;
 import com.vdt.flowpilot.process.entity.ProcessHistory;
 import com.vdt.flowpilot.process.entity.ProcessTaskSnapshot;
@@ -50,6 +51,7 @@ public class MeetingService {
     private final MeetingRequestRepository meetingRepository;
     private final MeetingAttendeeRepository attendeeRepository;
     private final NotificationRepository notificationRepository;
+    private final EmailService emailService;
     private final MeetingRoomRepository roomRepository;
     private final EquipmentRepository equipmentRepository;
     private final WorkflowDefinitionRepository workflowRepository;
@@ -66,6 +68,7 @@ public class MeetingService {
     public MeetingService(MeetingRequestRepository meetingRepository,
                           MeetingAttendeeRepository attendeeRepository,
                           NotificationRepository notificationRepository,
+                          EmailService emailService,
                           MeetingRoomRepository roomRepository,
                           EquipmentRepository equipmentRepository,
                           WorkflowDefinitionRepository workflowRepository,
@@ -78,6 +81,7 @@ public class MeetingService {
         this.meetingRepository = meetingRepository;
         this.attendeeRepository = attendeeRepository;
         this.notificationRepository = notificationRepository;
+        this.emailService = emailService;
         this.roomRepository = roomRepository;
         this.equipmentRepository = equipmentRepository;
         this.workflowRepository = workflowRepository;
@@ -550,7 +554,13 @@ public class MeetingService {
                 notification.setRecipientUsername(attendee.getUser().getUsername());
             }
 
-            notificationRepository.save(notification);
+            notification = notificationRepository.save(notification);
+
+            if ("GUEST".equals(attendee.getAttendeeType())) {
+                boolean emailSent = emailService.sendGuestInvitation(request, attendee);
+                notification.setStatus(emailSent ? "EMAIL_SENT" : "EMAIL_NOT_SENT");
+                notificationRepository.save(notification);
+            }
         }
     }
 
@@ -636,4 +646,3 @@ public class MeetingService {
                 .build();
     }
 }
-

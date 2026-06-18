@@ -123,7 +123,32 @@ http://localhost:3000/public/attendee-response/{token}
 
 Kết quả mong đợi: guest phản hồi được mà không cần đăng nhập.
 
-## 8. Demo Tự Hủy Khi Hết Hạn Giữ Phòng
+## 8. Demo Gửi Email Thật Cho Guest
+
+Để gửi mail thật, cấu hình backend:
+
+```text
+APP_MAIL_ENABLED=true
+APP_FRONTEND_URL=http://localhost:3000
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-sender@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_FROM=your-sender@gmail.com
+```
+
+Với Gmail, `MAIL_PASSWORD` là App Password, không phải mật khẩu đăng nhập Gmail.
+
+Sau khi approver approve meeting:
+
+1. Guest nhận email thật tại email đã nhập.
+2. Email có thông tin tiêu đề, thời gian, phòng/địa điểm, người tạo và nội dung.
+3. Guest bấm một trong ba nút **Đồng ý**, **Có thể**, **Từ chối**.
+4. Link mở trang public của FlowPilot và tự ghi nhận phản hồi.
+
+Kết quả mong đợi: trạng thái attendee đổi thành `ACCEPTED`, `TENTATIVE` hoặc `DECLINED`.
+
+## 9. Demo Tự Hủy Khi Hết Hạn Giữ Phòng
 
 Để demo nhanh, có thể giảm biến:
 
@@ -145,7 +170,7 @@ Kết quả mong đợi:
 - History có action `ROOM_HOLD_EXPIRED`.
 - Requester nhận notification yêu cầu đã bị từ chối do quá hạn giữ phòng.
 
-## 9. Demo Monitor
+## 10. Demo Monitor
 
 1. Đăng nhập `admin`.
 2. Vào **Monitor Dashboard**.

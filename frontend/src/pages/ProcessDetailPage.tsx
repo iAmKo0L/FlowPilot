@@ -647,7 +647,7 @@ export const ProcessDetailPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-slate-500 font-semibold uppercase">Rest Endpoint</p>
-                <p className="text-brand-400 font-mono mt-0.5 break-all">http://localhost:8080</p>
+                <p className="text-brand-400 font-mono mt-0.5 break-all">http://localhost:8080/engine-rest</p>
               </div>
             </div>
           </div>

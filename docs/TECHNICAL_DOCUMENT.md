@@ -114,7 +114,40 @@ Khi process được start:
 - ghi lịch sử `ROOM_HOLD_EXPIRED`;
 - gửi notification cho requester.
 
-## 6. Trạng Thái Chính
+## 6. Email Mời Họp Cho Guest
+
+Khi meeting được approve, backend tạo notification cho requester và từng attendee. Với attendee `GUEST`, hệ thống có thể gửi email thật nếu `APP_MAIL_ENABLED=true`.
+
+Thành phần liên quan:
+
+- `EmailService`: dựng email HTML và gửi qua `JavaMailSender`.
+- `MeetingService.sendMeetingConfirmedNotifications`: sau khi tạo notification guest, gọi `EmailService.sendGuestInvitation`.
+- `PublicAttendeeResponsePage`: nhận token public và query `status`; nếu status hợp lệ thì tự ghi nhận phản hồi.
+
+Email guest có 3 link tương ứng:
+
+- `ACCEPTED`: đồng ý tham gia.
+- `TENTATIVE`: có thể tham gia.
+- `DECLINED`: từ chối tham gia.
+
+Ví dụ link:
+
+```text
+https://flowpilot.company.com/public/attendee-response/{token}?status=ACCEPTED
+```
+
+`APP_FRONTEND_URL` phải là URL mà guest truy cập được. Nếu để `http://localhost:3000`, link chỉ dùng được trên máy đang chạy frontend local.
+
+SMTP có thể dùng:
+
+- Gmail/Google Workspace: cần App Password hoặc SMTP relay.
+- Microsoft 365: cần SMTP AUTH hoặc relay được quản trị viên cho phép.
+- SendGrid/Mailgun/Amazon SES: phù hợp môi trường production.
+- SMTP nội bộ công ty: phù hợp nếu công ty đã có mail gateway.
+
+Nếu gửi mail thất bại hoặc chưa bật mail, meeting vẫn không bị fail. Notification guest được lưu với status `EMAIL_NOT_SENT`; nếu gửi thành công là `EMAIL_SENT`.
+
+## 7. Trạng Thái Chính
 
 Meeting request:
 
@@ -137,7 +170,7 @@ Workflow:
 - `DRAFT`: cấu hình chưa deploy.
 - `DEPLOYED`: đã deploy lên engine và có thể chọn khi tạo meeting.
 
-## 7. Dữ Liệu Khởi Tạo
+## 8. Dữ Liệu Khởi Tạo
 
 `DataInitializer` seed:
 
@@ -147,7 +180,7 @@ Workflow:
 - Phòng mẫu: `ROOM_A101`, `ROOM_B201`, `ROOM_ONLINE`.
 - Workflow mẫu: `MEETING_SCHEDULING_WORKFLOW`.
 
-## 8. Quy Ước Dọn Dẹp Source
+## 9. Quy Ước Dọn Dẹp Source
 
 Không nên commit các thư mục sinh ra:
 
