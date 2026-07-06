@@ -105,35 +105,4 @@ public class WorkflowController {
         return ResponseEntity.ok(ApiResponse.success("Workflow deployed successfully to Camunda", response));
     }
 
-    @GetMapping("/{id}/form-fields")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get Admin Form Fields", description = "Retrieves workflow form fields list for administrators")
-    public ResponseEntity<ApiResponse<List<WorkflowFormFieldDto>>> getAdminFormFields(@PathVariable Long id) {
-        List<WorkflowFormFieldDto> response = workflowService.getFormFields(id);
-        return ResponseEntity.ok(ApiResponse.success("Form fields retrieved", response));
-    }
-
-    @PostMapping("/{id}/form-fields")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Add Form Field", description = "Adds a new form field configuration to the workflow")
-    public ResponseEntity<ApiResponse<WorkflowDefinitionDto>> addFormField(@PathVariable Long id, @Valid @RequestBody CreateFormFieldRequest request) {
-        WorkflowDefinitionDto response = workflowService.addFormField(id, request);
-        return ResponseEntity.ok(ApiResponse.success("Form field added successfully", response));
-    }
-
-    @PutMapping("/{id}/form-fields/{fieldId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Update Form Field", description = "Updates an existing form field configuration in the workflow")
-    public ResponseEntity<ApiResponse<WorkflowDefinitionDto>> updateFormField(@PathVariable Long id, @PathVariable Long fieldId, @Valid @RequestBody CreateFormFieldRequest request) {
-        WorkflowDefinitionDto response = workflowService.updateFormField(id, fieldId, request);
-        return ResponseEntity.ok(ApiResponse.success("Form field updated successfully", response));
-    }
-
-    @DeleteMapping("/{id}/form-fields/{fieldId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete Form Field", description = "Removes a form field configuration from the workflow")
-    public ResponseEntity<ApiResponse<WorkflowDefinitionDto>> deleteFormField(@PathVariable Long id, @PathVariable Long fieldId) {
-        WorkflowDefinitionDto response = workflowService.deleteFormField(id, fieldId);
-        return ResponseEntity.ok(ApiResponse.success("Form field deleted successfully", response));
-    }
 }

@@ -24,7 +24,5 @@ export const workflowApi = {
     axiosClient.post(`/api/admin/workflows/${id}/deploy`),
   getAvailable: (): Promise<{ success: boolean; data: WorkflowDefinition[] }> => 
     axiosClient.get('/api/workflows/available'),
-  getFormFields: (id: number): Promise<{ success: boolean; data: any[] }> => 
-    axiosClient.get(`/api/workflows/${id}/form-fields`),
 };
 export default workflowApi;

@@ -2,7 +2,6 @@ package com.vdt.flowpilot.workflow.controller;
 
 import com.vdt.flowpilot.common.response.ApiResponse;
 import com.vdt.flowpilot.workflow.dto.WorkflowDefinitionDto;
-import com.vdt.flowpilot.workflow.dto.WorkflowFormFieldDto;
 import com.vdt.flowpilot.workflow.service.WorkflowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,11 +32,4 @@ public class WorkflowUserController {
         return ResponseEntity.ok(ApiResponse.success("Available workflows retrieved", response));
     }
 
-    @GetMapping("/{id}/form-fields")
-    @PreAuthorize("hasAnyRole('REQUESTER', 'ADMIN', 'APPROVER', 'MONITOR')")
-    @Operation(summary = "Get Form Fields", description = "Retrieves the list of input fields configured for a specific workflow")
-    public ResponseEntity<ApiResponse<List<WorkflowFormFieldDto>>> getFormFields(@PathVariable Long id) {
-        List<WorkflowFormFieldDto> response = workflowService.getFormFields(id);
-        return ResponseEntity.ok(ApiResponse.success("Form fields retrieved", response));
-    }
 }

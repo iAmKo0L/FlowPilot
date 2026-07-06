@@ -1,7 +1,6 @@
 package com.vdt.flowpilot.task.controller;
 
 import com.vdt.flowpilot.common.response.ApiResponse;
-import com.vdt.flowpilot.task.dto.CompleteTaskRequest;
 import com.vdt.flowpilot.task.dto.TaskDto;
 import com.vdt.flowpilot.task.service.MeetingTaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,13 +46,6 @@ public class MeetingTaskController {
         return ResponseEntity.ok(ApiResponse.success("ÄĂ£ nháº­n xá»­ lĂ½ cĂ´ng viá»‡c thĂ nh cĂ´ng", null));
     }
 
-    @PostMapping("/{taskId}/complete")
-    @Operation(summary = "Complete Workflow Task", description = "Completes a dynamic workflow task with submitted variables and comment")
-    public ResponseEntity<ApiResponse<Void>> completeTask(@PathVariable String taskId,
-                                                          @RequestBody(required = false) CompleteTaskRequest request) {
-        taskService.completeTask(taskId, request);
-        return ResponseEntity.ok(ApiResponse.success("Task completed successfully", null));
-    }
     @PostMapping("/{taskId}/approve")
     @Operation(summary = "Approve Meeting Task", description = "Approves the meeting scheduling request, moves workflow forward, and confirms room reserve")
     public ResponseEntity<ApiResponse<Void>> approveTask(@PathVariable String taskId,

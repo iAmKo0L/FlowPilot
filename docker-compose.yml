@@ -46,14 +46,14 @@ services:
       - SPRING_DATASOURCE_PASSWORD=flowpilot
       - BPMN_ENGINE_URL=http://cibseven:8080/engine-rest
       - APP_FRONTEND_URL=http://localhost:3000
-      - APP_MAIL_ENABLED=false
-      - MAIL_HOST=
+      - APP_MAIL_ENABLED=true
+      - MAIL_HOST=smtp.gmail.com
       - MAIL_PORT=587
-      - MAIL_USERNAME=
-      - MAIL_PASSWORD=
-      - MAIL_FROM=no-reply@flowpilot.local
+      - MAIL_USERNAME=doduccanh2k4@gmail.com
+      - MAIL_PASSWORD=dxoa dupm qhpc aqhu
+      - MAIL_FROM=doduccanh2k4@gmail.com
       - APP_CRYPTO_SECRET=1234567890123456
-      - JWT_SECRET=please-change-this-secret-jwt-flowpilot-viettel-digital-talent-2026
+      - JWT_SECRET=secret-jwt-flowpilot-viettel-digital-talent-2026
       - TZ=Asia/Ho_Chi_Minh
     depends_on:
       postgres:

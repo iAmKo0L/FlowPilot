@@ -7,15 +7,16 @@ import com.vdt.flowpilot.bpmn.dto.DeploymentResult;
 import com.vdt.flowpilot.bpmn.generator.BpmnXmlGenerator;
 import com.vdt.flowpilot.common.exception.BusinessException;
 import com.vdt.flowpilot.common.exception.ResourceNotFoundException;
-import com.vdt.flowpilot.workflow.dto.*;
+import com.vdt.flowpilot.workflow.dto.CreateStepRequest;
+import com.vdt.flowpilot.workflow.dto.CreateWorkflowRequest;
+import com.vdt.flowpilot.workflow.dto.WorkflowDefinitionDto;
+import com.vdt.flowpilot.workflow.dto.WorkflowFormFieldDto;
+import com.vdt.flowpilot.workflow.dto.WorkflowStepDto;
 import com.vdt.flowpilot.workflow.entity.WorkflowDefinition;
-import com.vdt.flowpilot.workflow.entity.WorkflowStep;
 import com.vdt.flowpilot.workflow.entity.WorkflowFormField;
+import com.vdt.flowpilot.workflow.entity.WorkflowStep;
 import com.vdt.flowpilot.workflow.repository.WorkflowDefinitionRepository;
 import com.vdt.flowpilot.workflow.repository.WorkflowStepRepository;
-import com.vdt.flowpilot.workflow.repository.WorkflowFormFieldRepository;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,20 +29,17 @@ public class WorkflowService {
 
     private final WorkflowDefinitionRepository workflowRepository;
     private final WorkflowStepRepository stepRepository;
-    private final WorkflowFormFieldRepository workflowFormFieldRepository;
     private final BpmnXmlGenerator bpmnXmlGenerator;
     private final BpmnAdapter bpmnAdapter;
     private final AuthService authService;
 
     public WorkflowService(WorkflowDefinitionRepository workflowRepository,
                            WorkflowStepRepository stepRepository,
-                           WorkflowFormFieldRepository workflowFormFieldRepository,
                            BpmnXmlGenerator bpmnXmlGenerator,
                            BpmnAdapter bpmnAdapter,
                            AuthService authService) {
         this.workflowRepository = workflowRepository;
         this.stepRepository = stepRepository;
-        this.workflowFormFieldRepository = workflowFormFieldRepository;
         this.bpmnXmlGenerator = bpmnXmlGenerator;
         this.bpmnAdapter = bpmnAdapter;
         this.authService = authService;
@@ -80,8 +78,7 @@ public class WorkflowService {
                 .createdBy(user.getUsername())
                 .build();
 
-        workflow = workflowRepository.save(workflow);
-        return mapToWorkflowDto(workflow);
+        return mapToWorkflowDto(workflowRepository.save(workflow));
     }
 
     @Transactional
@@ -101,8 +98,7 @@ public class WorkflowService {
         }
         workflow.setStatus("DRAFT");
 
-        workflow = workflowRepository.save(workflow);
-        return mapToWorkflowDto(workflow);
+        return mapToWorkflowDto(workflowRepository.save(workflow));
     }
 
     @Transactional
@@ -218,6 +214,13 @@ public class WorkflowService {
         return mapToWorkflowDto(workflow);
     }
 
+    @Transactional(readOnly = true)
+    public List<WorkflowDefinitionDto> getAvailableWorkflows() {
+        return workflowRepository.findByStatus("DEPLOYED").stream()
+                .map(this::mapToWorkflowDto)
+                .collect(Collectors.toList());
+    }
+
     private WorkflowDefinitionDto mapToWorkflowDto(WorkflowDefinition workflow) {
         return WorkflowDefinitionDto.builder()
                 .id(workflow.getId())
@@ -232,7 +235,9 @@ public class WorkflowService {
                 .createdAt(workflow.getCreatedAt())
                 .updatedAt(workflow.getUpdatedAt())
                 .steps(workflow.getSteps().stream().map(this::mapToStepDto).collect(Collectors.toList()))
-                .formFields(workflow.getFormFields() != null ? workflow.getFormFields().stream().map(this::mapToFormFieldDto).collect(Collectors.toList()) : new ArrayList<>())
+                .formFields(workflow.getFormFields() != null
+                        ? workflow.getFormFields().stream().map(this::mapToFormFieldDto).collect(Collectors.toList())
+                        : new ArrayList<>())
                 .build();
     }
 
@@ -266,80 +271,4 @@ public class WorkflowService {
                 .updatedAt(field.getUpdatedAt())
                 .build();
     }
-
-    @Transactional(readOnly = true)
-    public List<WorkflowFormFieldDto> getFormFields(Long workflowId) {
-        WorkflowDefinition workflow = workflowRepository.findById(workflowId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy workflow với id " + workflowId));
-        return workflow.getFormFields().stream()
-                .map(this::mapToFormFieldDto)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public WorkflowDefinitionDto addFormField(Long workflowId, CreateFormFieldRequest request) {
-        WorkflowDefinition workflow = workflowRepository.findById(workflowId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy workflow với id " + workflowId));
-
-        WorkflowFormField field = WorkflowFormField.builder()
-                .workflow(workflow)
-                .fieldKey(request.getFieldKey())
-                .fieldLabel(request.getFieldLabel())
-                .fieldType(request.getFieldType())
-                .required(request.isRequired())
-                .optionsJson(request.getOptionsJson())
-                .defaultValue(request.getDefaultValue())
-                .validationJson(request.getValidationJson())
-                .orderIndex(request.getOrderIndex())
-                .sensitive(request.isSensitive())
-                .build();
-
-        workflowFormFieldRepository.save(field);
-        workflow.getFormFields().add(field);
-        return mapToWorkflowDto(workflowRepository.save(workflow));
-    }
-
-    @Transactional
-    public WorkflowDefinitionDto updateFormField(Long workflowId, Long fieldId, CreateFormFieldRequest request) {
-        WorkflowFormField field = workflowFormFieldRepository.findById(fieldId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy trường form với id " + fieldId));
-
-        if (!field.getWorkflow().getId().equals(workflowId)) {
-            throw new BusinessException("Trường form này không thuộc workflow đã chọn");
-        }
-
-        field.setFieldKey(request.getFieldKey());
-        field.setFieldLabel(request.getFieldLabel());
-        field.setFieldType(request.getFieldType());
-        field.setRequired(request.isRequired());
-        field.setOptionsJson(request.getOptionsJson());
-        field.setDefaultValue(request.getDefaultValue());
-        field.setValidationJson(request.getValidationJson());
-        field.setOrderIndex(request.getOrderIndex());
-        field.setSensitive(request.isSensitive());
-
-        workflowFormFieldRepository.save(field);
-        return getWorkflowById(workflowId);
-    }
-
-    @Transactional
-    public WorkflowDefinitionDto deleteFormField(Long workflowId, Long fieldId) {
-        WorkflowFormField field = workflowFormFieldRepository.findById(fieldId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy trường form với id " + fieldId));
-
-        if (!field.getWorkflow().getId().equals(workflowId)) {
-            throw new BusinessException("Trường form này không thuộc workflow đã chọn");
-        }
-
-        workflowFormFieldRepository.delete(field);
-        return getWorkflowById(workflowId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<WorkflowDefinitionDto> getAvailableWorkflows() {
-        return workflowRepository.findByStatus("DEPLOYED").stream()
-                .map(this::mapToWorkflowDto)
-                .collect(Collectors.toList());
-    }
-
 }

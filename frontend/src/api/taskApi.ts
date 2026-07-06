@@ -8,8 +8,6 @@ export const taskApi = {
     axiosClient.get(`/api/meeting-tasks/${id}`),
   claim: (id: string): Promise<{ success: boolean }> => 
     axiosClient.post(`/api/meeting-tasks/${id}/claim`),
-  complete: (id: string, data: any): Promise<{ success: boolean }> => 
-    axiosClient.post(`/api/meeting-tasks/${id}/complete`, data),
   approve: (id: string, comment?: string): Promise<{ success: boolean }> => 
     axiosClient.post(`/api/meeting-tasks/${id}/approve`, null, { params: { comment } }),
   reject: (id: string, comment?: string): Promise<{ success: boolean }> => 
